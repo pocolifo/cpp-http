@@ -1,6 +1,8 @@
 #include <iostream>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <netdb.h>
+#include <unistd.h>
 
 #include "http/request/HttpRequest.hpp"
 #include "http/response/HttpResponse.hpp"
@@ -11,7 +13,7 @@ void recv_impl(void* buf, size_t buffer_length) {
     recv(s, buf, buffer_length, 0);
 }
 
-int main() {
+void connect_socket() {
     s = socket(AF_INET, SOCK_STREAM, 0);
 
     struct sockaddr_in address = {
@@ -20,32 +22,38 @@ int main() {
     };
 
     inet_pton(AF_INET, "127.0.0.1", &address.sin_addr);
-    
+
     connect(s, (struct sockaddr*) &address, sizeof(address));
+}
 
-    // abc
+http::request::HttpRequest get(std::string resource) {
+    http::request::HttpRequest r(http::spec::METHOD_GET, http::spec::VERSION_HTTP_11, resource);
 
-    http::request::HttpRequest req(http::spec::METHOD_GET, http::spec::VERSION_HTTP_11, "/");
+    r.headers.set("Connection", "keep-alive");
+    r.headers.set("User-Agent", "cpp-http");
+    r.headers.set("Host", "127.0.0.1:8000");
+    r.headers.set("Accept", "*/*");
 
-    req.headers.set("User-Agent", "cpp-http 1.0 (in development)");
-    req.headers.set("Connection", "close");
+    return r;
+}
 
-    std::string buf = req.get();
+int main() {
+    connect_socket();
 
-    std::cout << "=== Sending ===" << std::endl;
-    std::cout << buf;
+    // request #1
+    http::request::HttpRequest indexReq = get("/");
+    send(s, indexReq.get().c_str(), indexReq.get().length(), 0);
+    // http::response::recv(recv_impl);
 
-    send(s, buf.c_str(), buf.length(), 0);
+    // request #2
+    http::request::HttpRequest makefileReq = get("/Makefile");
+    // makefileReq.headers.set("Connection", "close");
 
-    std::cout << "Sent ... recv" << std::endl;
+    // std::cout << makefileReq.get();
 
-    // char bufa[10240];
-    // recv(s, &bufa, sizeof(bufa), 0);
-
-    // std::cout << bufa;
-
-    // xyz
-
+    send(s, makefileReq.get().c_str(), makefileReq.get().length(), 0);
     http::response::recv(recv_impl);
+
+    close(s);
 }
 

@@ -3,19 +3,16 @@
 
 #include "HttpResponse.hpp"
 
-#define BUFFER_SIZE 100
+#define BUFFER_SIZE 10
 
 using namespace http::response;
 
 
 HttpResponse http::response::recv(void(*next_bytes_func)(void* buf, size_t buffer_length)) {
     char buf[BUFFER_SIZE];
-
-    // TODO: Parse http
-
     next_bytes_func(&buf, BUFFER_SIZE);
-    
-    std::cout << buf;
+
+    return HttpResponse("HTTP/1.1", 200, "OK");
 }
 
 HttpResponse::HttpResponse(HttpVersion version, short statusCode, std::string statusText) {

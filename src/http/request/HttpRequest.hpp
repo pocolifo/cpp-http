@@ -17,7 +17,7 @@ namespace http::request
             std::string version;
             std::string resource;
             HttpHeaders headers;
-            char body[];
+            std::string body;
 
             HttpRequest(HttpMethod method, HttpVersion version, std::string resource);
 
