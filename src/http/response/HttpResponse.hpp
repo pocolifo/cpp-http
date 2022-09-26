@@ -13,16 +13,14 @@ namespace http::response
 {
     class HttpResponse {
         public:
-            short statusCode;
+            short statusCode = -1;
             std::string version;
             std::string statusText;
             HttpHeaders headers;
-            char body[];
-
-            HttpResponse(HttpVersion version, short statusCode, std::string statusText);
+            std::string body;
 
             std::string get();
     };
 
-    HttpResponse recv(void(*next_bytes_func)(void* buf, size_t buffer_length));
+    HttpResponse recv(int(*next_bytes_func)(void* buf, size_t buffer_length));
 }
