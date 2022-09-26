@@ -1,7 +1,7 @@
-OUTPUT=a.out
+OUTPUT=main.out
 
 build:
-	clang++ $(shell find src -type f) -std=c++17
+	clang++ $(shell find src -type f -name *.cpp) -std=c++17 -o $(OUTPUT)
 
 clean:
 	-rm $(OUTPUT)
