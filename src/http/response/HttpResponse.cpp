@@ -24,18 +24,6 @@ HttpResponse http::response::recv(int(*next_bytes_func)(void* buf, size_t buffer
     std::string buffer;
     HttpResponse response;
 
-    /**
-     * 0x10 = http version
-     * 0x11 = http status code
-     * 0x12 = http status text
-     * 
-     * 0x20 = header name || header-body separator
-     * 0x21 = header space
-     * 0x22 = header value
-     * 
-     * 0x30 = new line for body start
-     * 0x31 = body
-     */
     Expecting expecting = Expecting::HTTP_VERSION;
 
     std::string headerName;
