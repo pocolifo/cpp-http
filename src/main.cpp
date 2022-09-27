@@ -57,6 +57,8 @@ int main(int argCount, char** arguments) {
         std::cout << header.key << " :: " << header.value << std::endl;
     }
 
+    std::cout << "cl = " << response.headers.get("Connection").value << std::endl;
+
     /*
     std::cout << std::endl << "=== BODY START ===" << std::endl << response.body << std::endl << "=== BODY END ===" << std::endl;
     */

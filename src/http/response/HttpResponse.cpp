@@ -1,6 +1,3 @@
-#include <sstream>
-#include <iostream> // temp
-
 #include "HttpResponse.hpp"
 
 #define BUFFER_SIZE 1024
@@ -11,7 +8,7 @@ using namespace http::response;
 HttpResponse http::response::recv(int(*next_bytes_func)(void* buf, size_t buffer_length)) {
     char inBuffer[BUFFER_SIZE];
     
-    std::stringstream buffer;
+    std::string buffer;
     HttpResponse response;
 
     /**
@@ -43,36 +40,36 @@ HttpResponse http::response::recv(int(*next_bytes_func)(void* buf, size_t buffer
             switch (expecting) {
                 case 0x10:
                     if (c == ' ') {
-                        response.version = buffer.str();
-                        buffer.str("");
+                        response.version = buffer;
+                        buffer.clear();
                         expecting = 0x11;
                         continue;
                     }
 
-                    buffer << c;
+                    buffer.push_back(c);
                     break;
                 
                 case 0x11:
                     if (c == ' ') {
-                        response.statusCode = std::stoi(buffer.str());
-                        buffer.str("");
+                        response.statusCode = std::stoi(buffer);
+                        buffer.clear();
                         expecting = 0x12;
                         continue;
                     }
 
-                    buffer << c;
+                    buffer.push_back(c);
                     break;
                 
                 case 0x12:
                     if (c == '\r') continue;
                     if (c == '\n') {
-                        response.statusText = buffer.str();
-                        buffer.str("");
+                        response.statusText = buffer;
+                        buffer.clear();
                         expecting = 0x20;
                         continue;
                     }
 
-                    buffer << c;
+                    buffer.push_back(c);
                     break;
                 
                 case 0x20:
@@ -82,13 +79,13 @@ HttpResponse http::response::recv(int(*next_bytes_func)(void* buf, size_t buffer
                     }
 
                     if (c == ':') {
-                        headerName = buffer.str();
-                        buffer.str("");
+                        headerName = buffer;
+                        buffer.clear();
                         expecting = 0x21;
                         continue;
                     }
 
-                    buffer << c;
+                    buffer.push_back(c);
                     break;
 
                 case 0x21:
@@ -101,13 +98,13 @@ HttpResponse http::response::recv(int(*next_bytes_func)(void* buf, size_t buffer
                 case 0x22:
                     if (c == '\r') continue;
                     if (c == '\n') {
-                        response.headers.set(headerName, buffer.str());
-                        buffer.str("");
+                        response.headers.set(headerName, buffer);
+                        buffer.clear();
                         expecting = 0x20;
                         continue;
                     }
 
-                    buffer << c;
+                    buffer.push_back(c);
                     break;
                 
                 case 0x30:
@@ -128,15 +125,15 @@ HttpResponse http::response::recv(int(*next_bytes_func)(void* buf, size_t buffer
 }
 
 std::string HttpResponse::get() {
-    std::stringstream buf;
+    std::string str;
 
-    buf << this->version << " " << this->statusCode << " " << this->statusText << "\r\n";
+    str.append(this->version).append(" ").append(std::to_string(this->statusCode)).append(" ").append(this->statusText).append("\r\n");
 
     for (HttpHeader header : this->headers) {
-        buf << header.key << ": " << header.value << "\r\n";
+        str.append(header.key).append(": ").append(header.value).append("\r\n");
     }
 
-    buf << "\r\n" << this->body;
+    str.append("\r\n").append(this->body);
 
-    return buf.str();
+    return str;
 }

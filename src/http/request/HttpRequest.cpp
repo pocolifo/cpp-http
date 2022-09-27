@@ -1,5 +1,3 @@
-#include <sstream>
-
 #include "HttpRequest.hpp"
 
 using namespace http::request;
@@ -12,15 +10,15 @@ HttpRequest::HttpRequest(HttpMethod method, HttpVersion version, std::string res
 }
 
 std::string HttpRequest::get() {
-    std::stringstream buf;
+    std::string s;
 
-    buf << this->method << " " << this->resource << " " << this->version << "\r\n";
+    s.append(this->method).append(" ").append(this->resource).append(" ").append(this->version).append("\r\n");
 
     for (HttpHeader header : this->headers) {
-        buf << header.key << ": " << header.value << "\r\n";
+        s.append(header.key).append(": ").append(header.value).append("\r\n");
     }
 
-    buf << "\r\n" << this->body;
+    s.append("\r\n").append(this->body);
 
-    return buf.str();
+    return s;
 }

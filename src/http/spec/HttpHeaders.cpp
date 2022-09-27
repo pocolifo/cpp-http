@@ -1,3 +1,5 @@
+#include <stdexcept>
+
 #include "HttpHeaders.hpp"
 
 using namespace http::spec;
@@ -31,8 +33,10 @@ void HttpHeaders::remove(const std::string key) {
 
 HttpHeader HttpHeaders::get(const std::string key) {
     for (HttpHeader header : this->headers) {
-        if (header.key == key) return header;
+        if (header.key == key)return header;
     }
+
+    throw std::invalid_argument("header does not exist: " + key);
 }
 
 std::vector<http::spec::HttpHeader>::iterator HttpHeaders::begin() {
